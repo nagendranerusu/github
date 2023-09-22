@@ -1,0 +1,55 @@
+name: API Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Backup Deployment Folder
+      run: |
+        # Step 1: Take backup of the existing deployment folder
+        # Step 2: Take backup every time if deploying multiple times
+        # Implement backup logic here
+        echo "Performing backup..."
+        mkdir -p C:\Backup\SampleAPP
+        Copy-Item -Path C:\SampleAPP\* -Destination C:\Backup\SampleAPP -Force
+      shell: powershell
+
+    - name: Deploy to IIS
+      run: |
+        # Step 3: Stop App pool and website in IIS
+        # Implement stop IIS logic here
+        Stop-WebAppPool -Name "YourAppPoolName"
+        Stop-Website -Name "YourWebsiteName"
+
+        # Step 4: Build the repo
+        # Implement build logic here
+        echo "Building the repository..."
+
+        # Step 5: Replace new DLLs
+        # Implement DLL replacement logic here
+        echo "Replacing DLLs..."
+
+        # Step 6: Rollback on deployment failure
+        # Implement rollback logic on failure
+        if ($error) {
+          echo "Rolling back deployment..."
+          Copy-Item -Path C:\Backup\SampleAPP\* -Destination C:\SampleAPP -Force
+        }
+
+        # Step 7: Restart app pool and website on success
+        # Implement start IIS logic here
+        Start-WebAppPool -Name "YourAppPoolName"
+        Start-Website -Name "YourWebsiteName"
+
+        # Step 8: Rollback on failure in multiple servers
+        # Implement rollback logic for multiple servers if needed
+      shell: powershell
